@@ -1,0 +1,1 @@
+{"bankAccounts":[{"ownerName":"Petr Kaiser","accountNumber":"123456789","accountBalance":[{"waers":"CZK","wrbtr":"600.0"},{"waers":"EUR","wrbtr":"100"}],"transactions":[{"waers":"EUR","wrbtr":"100","operation":"+"},{"waers":"CZK","wrbtr":"100.0","operation":"-"},{"waers":"CZK","wrbtr":"100.0","operation":"-"}],"email":"petr.kaiser@tul.cz"}]}
