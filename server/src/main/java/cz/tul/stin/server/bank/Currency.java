@@ -2,7 +2,6 @@ package cz.tul.stin.server.bank;
 import java.util.*;
 public class Currency {
     private String waers;
-    public static final List<String> waersList = Arrays.asList("CZK","EUR","USD","GBP");
     private float wrbtr;
 
     public Currency(String currency, float wrbtr) {
@@ -17,10 +16,6 @@ public class Currency {
 
     public String getWaers() {
         return waers;
-    }
-
-    public void setWaers(String currency) {
-        this.waers = currency;
     }
 
     public float getWrbtr() {

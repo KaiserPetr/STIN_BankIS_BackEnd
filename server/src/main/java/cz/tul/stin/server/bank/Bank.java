@@ -9,13 +9,11 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
 
+
 public class Bank {
 
-    private List<Currency>currencies;
-
-    public Bank() {
-        this.currencies = new ArrayList<Currency>();
-    }
+    public static List<Currency>exchangeRates;
+    public static String exchangeRatesDate;
 
     public static Account loadAccountDataFromFile(int accountNumber) throws Exception {
         Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
@@ -44,7 +42,8 @@ public class Bank {
                     String operation = joTransaction.get(Const.JKEY_OPERATION).toString();
                     float wrbtr = Float.parseFloat(joTransaction.get(Const.JKEY_WRBTR).toString());
                     String waers = joTransaction.get(Const.JKEY_WAERS).toString();
-                    transactions.add(new Transaction(operation.charAt(0), new Currency(waers, wrbtr)));
+                    String msg = joTransaction.get(Const.JKEY_MESSAGE).toString();
+                    transactions.add(new Transaction(operation.charAt(0), new Currency(waers, wrbtr), msg));
                 }
                 return new Account(accountNumber, owner, email, balance, transactions);
             }
@@ -52,34 +51,45 @@ public class Bank {
         throw new Exception("Provided json key was not found in json file!");
     }
 
-
-    public void currenciesParser(String urlString) throws Exception {
-        URL url = new URL(urlString);
+    public static void downloadExchangeRates() throws Exception {
+        URL url = new URL(Const.CNB_URL);
         try {
+            exchangeRates = new ArrayList<Currency>();
             Scanner sc = new Scanner(url.openStream());
-            int i = 0;
-            String date, waers, wrbtr;
+            int line = 0;
+            String waers, wrbtr;
             while (sc.hasNextLine()){
-                if (i == 0) {
-                    sc.useDelimiter(" ");
-                    date = sc.next();
-                } else if (i == 1) {
-                    i++;
+                String s = sc.nextLine();
+                if (line == 0) {
+                    exchangeRatesDate = s.split(" ")[0];
+                } else if (line == 1) {
+                    line++;
                     continue;
                 } else {
-                    sc.useDelimiter("\\|");
-                    sc.next();
-                    sc.next();
-                    sc.next();
-                    waers = sc.next();
-                    wrbtr = sc.next();
-                    currencies.add(new Currency(waers, Float.parseFloat(wrbtr)));
+                    String [] array = s.split("\\|");
+                    waers = array[3];
+                    wrbtr = array[4].replace(",",".");
+                    exchangeRates.add(new Currency(waers, Float.parseFloat(wrbtr)));
                 }
-                i++;
+                line++;
             }
         } catch (Exception e){
             throw new RuntimeException(e);
         }
+    }
+
+    public static String generateRandomCode(){
+        Random random = new Random();
+        return String.format("%04d", random.nextInt(10000));
+    }
+
+    public static Float getExchangeRate(String waers){
+        for (Currency c : exchangeRates) {
+            if (c.getWaers().equals(waers)){
+                return c.getWrbtr();
+            }
+        }
+        throw new RuntimeException("Aktualni kurz pro zadany klic meny nenalezen");
     }
 
 }

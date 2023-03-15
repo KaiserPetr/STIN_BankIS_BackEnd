@@ -12,6 +12,10 @@ public class Transaction {
         this.message = "";
     }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public Transaction(char operation, Currency currency, String message) {
         this.operation = operation;
         this.currency = currency;
@@ -22,16 +26,12 @@ public class Transaction {
         return operation;
     }
 
-    public void setOperation(char operation) {
-        this.operation = operation;
-    }
-
     public Currency getCurrency() {
         return currency;
     }
 
-    public void setCurrency(Currency currency) {
-        this.currency = currency;
+    public String getMessage() {
+        return message;
     }
 
     @Override
@@ -39,6 +39,7 @@ public class Transaction {
         return "Transaction{" +
                 "operation=" + operation +
                 ", currency=" + currency +
+                ", message='" + message + '\'' +
                 '}';
     }
 }

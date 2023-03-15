@@ -4,7 +4,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.FileNotFoundException;
 import java.io.*;
 import java.util.*;
 public class Account {
@@ -21,31 +20,73 @@ public class Account {
         this.transactions = transactions;
     }
 
-    public String provideTransaction( Transaction t ) throws Exception {
-        for ( Currency b : balance ) {
-            if (b.getWaers().equals(t.getCurrency().getWaers())){
-                switch(t.getOperation()) {
-                    case '+':
-                        transactions.add(new Transaction(t.getOperation(), t.getCurrency()));
-                        b.setWrbtr(b.getWrbtr() + t.getCurrency().getWrbtr());
-                        updateJsonData( t, b );
-                        return "Transakce probehla uspesne.";
-                    case '-':
-                        // TODO pri malem zustatku prevod na CZK
-                        if (b.getWrbtr() >= t.getCurrency().getWrbtr()) {
-                            transactions.add(new Transaction(t.getOperation(), t.getCurrency()));
-                            b.setWrbtr(b.getWrbtr() - t.getCurrency().getWrbtr());
-                            updateJsonData( t, b );
+    public String provideTransaction(Transaction t) throws Exception {
+        switch(t.getOperation()) {
+            case '+':
+                transactions.add(new Transaction(t.getOperation(), t.getCurrency()));
+                setBalance(new Currency(t.getCurrency().getWaers(),getBalance(t.getCurrency().getWaers()).getWrbtr()+t.getCurrency().getWrbtr()));
+                updateJsonData( t, getBalance(t.getCurrency().getWaers()) );
+                return "Transakce probehla uspesne.";
+            case '-':
+                // v dane mene je dostatecny zustatek
+                if (getBalance(t.getCurrency().getWaers()).getWrbtr() >= t.getCurrency().getWrbtr() ){
+                    transactions.add(new Transaction(t.getOperation(), t.getCurrency()));
+                    setBalance(new Currency(t.getCurrency().getWaers(),getBalance(t.getCurrency().getWaers()).getWrbtr()-t.getCurrency().getWrbtr()));
+                    updateJsonData( t, getBalance(t.getCurrency().getWaers()) );
+                    return "Transakce probehla uspesne.";
+                } else {
+                    if (!t.getCurrency().getWaers().equals("CZK")) {
+                        //dana mena nema dostatecny zustatek, prevod na czk
+                        float exchangeRate = Bank.getExchangeRate(t.getCurrency().getWaers());
+                        float wrbtrCZK = t.getCurrency().getWrbtr() * exchangeRate;
+                        Currency balanceCZK = getBalance("CZK");
+                        if (balanceCZK.getWrbtr() >= wrbtrCZK) {
+                            String msg = String.format("%s:CZK 1:%.2f",t.getCurrency().getWaers(),exchangeRate);
+                            transactions.add(new Transaction(t.getOperation(), new Currency("CZK", wrbtrCZK), msg ));
+                            setBalance(new Currency("CZK",balanceCZK.getWrbtr()-wrbtrCZK));
+                            t.setMessage(msg);
+                            updateJsonData( t, getBalance("CZK") );
                             return "Transakce probehla uspesne.";
                         } else {
                             return "Chyba, nedostatecny zustatek.";
                         }
-                    default:
-                        return "Chyba, zadan spatny operator transakce.";
+                    } else {
+                        return "Chyba, nedostatecny zustatek.";
+                    }
                 }
+            default:
+                return "Chyba, zadan spatny operator transakce.";
+        }
+    }
+
+    public Transaction generateRandomTransaction(){
+        char[] operators = {'+','-'};
+        int rndIndexOp = new Random().nextInt(operators.length);
+        char rndOperator = operators[rndIndexOp];
+        int rndIndexBalance = new Random().nextInt(operators.length);
+        String rndWaers = balance.get(rndIndexBalance).getWaers();
+        int rndWrbtr = (int)Math.round(Math.random() * 1000); //random cele cislo od 0 do 1000
+
+        return new Transaction(rndOperator, new Currency(rndWaers,rndWrbtr));
+    }
+
+    public Currency getBalance(String waers){
+        for (Currency b : balance) {
+            if (b.getWaers().equals(waers)){
+                return b;
             }
         }
-        return "Chyba, ucet neobsahuje zadanou menu.";
+        throw new RuntimeException("Ucet neobsahuje zustatek v teto mene");
+    }
+
+    public void setBalance(Currency c){
+        for (Currency b : balance) {
+            if (b.getWaers().equals(c.getWaers())){
+                b.setWrbtr(c.getWrbtr());
+                return;
+            }
+        }
+        throw new RuntimeException("Ucet neobsahuje zustatek v teto mene");
     }
 
     public void updateJsonData( Transaction t, Currency b ) throws Exception {
@@ -74,6 +115,7 @@ public class Account {
                 newTransaction.put(Const.JKEY_WAERS,t.getCurrency().getWaers());
                 newTransaction.put(Const.JKEY_WRBTR,String.valueOf(t.getCurrency().getWrbtr()));
                 newTransaction.put(Const.JKEY_OPERATION,String.valueOf(t.getOperation()));
+                newTransaction.put(Const.JKEY_MESSAGE,t.getMessage());
                 jaTransactions.add(newTransaction);
                 changed = true;
                 break;
@@ -84,6 +126,10 @@ public class Account {
                 file.write(jo.toString());
             }
         }
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     @Override
