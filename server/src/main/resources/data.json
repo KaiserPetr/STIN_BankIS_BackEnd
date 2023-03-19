@@ -1,1 +1,41 @@
-{"bankAccounts":[{"ownerName":"Petr Kaiser","accountNumber":"123456789","accountBalance":[{"waers":"CZK","wrbtr":"48652.0"},{"waers":"EUR","wrbtr":"0.0"}],"transactions":[{"msg":"","waers":"EUR","wrbtr":"100.0","operation":"-"},{"msg":"EUR:CZK 1:23,79","waers":"EUR","wrbtr":"100.0","operation":"-"},{"msg":"","waers":"CZK","wrbtr":"547.0","operation":"+"}],"email":"petr.kaiser@tul.cz"}]}
+{
+    "bankAccounts": [{
+            "ownerID": 1234,
+            "accountNumber": "123456789",
+            "accountBalance": [{
+                    "waers": "CZK",
+                    "wrbtr": "48652.0"
+                },
+                {
+                    "waers": "EUR",
+                    "wrbtr": "0.0"
+                }
+            ],
+            "transactions": [{
+                    "msg": "",
+                    "waers": "EUR",
+                    "wrbtr": "100.0",
+                    "operation": "-"
+                },
+                {
+                    "msg": "EUR:CZK 1:23,79",
+                    "waers": "EUR",
+                    "wrbtr": "100.0",
+                    "operation": "-"
+                },
+                {
+                    "msg": "",
+                    "waers": "CZK",
+                    "wrbtr": "547.0",
+                    "operation": "+"
+                }
+            ]
+        }
+    ],
+    "users": [{
+        "id": 1234,
+        "firstname": "Petr",
+        "surname": "Kaiser",
+        "email": "petr.kaiser@tul.cz"
+    }]
+}

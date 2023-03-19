@@ -1,30 +1,26 @@
 import React, { Component } from 'react'
 import './App.css'
-import axios from 'axios'
+import Login from './components/Login'
+import Verify from './components/Verify'
+import Account from './components/Account'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 
-class App extends Component {
+function App(){
 
-  constructor () {
-    super()
-    this.state = {
-      message: 'init'
-    }
+  const [clientId,setClientId] = React.useState(1);
+  const [loginCode,setLoginCode] = React.useState(-1);
 
-    this.handleClick = this.handleClick.bind(this)
-  }
-
-  handleClick () {
-    axios.get('http://localhost:8081/')
-    .then(response => this.setState({message: response.data}))
-  }
-
-  render () {
-      return (
-        <div className='button__container' onClick={this.handleClick}>
-          <button className='button'>Click me</button>
-          <p>{this.state.message}</p>
-        </div>
-      )
-  }
+  return (
+    <div className="App">
+      <Router>
+        <Routes>
+          <Route exact path="/" element={<Login clientCallback={setClientId} loginCallback={setLoginCode}/>}/>
+          <Route exact path="/verify" element={<Verify loginCode={loginCode} />}/>
+          <Route exact path="/account" element={<Account clientId={clientId} loginCallback={setLoginCode}/>}/>
+        </Routes>
+      </Router>
+    </div>
+  )
 }
+
 export default App

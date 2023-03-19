@@ -4,28 +4,38 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+
 import java.io.*;
 import java.util.*;
 public class Account {
-    private int accountNumber;
-    private String ownerName, email;
+    private int ownerID, accountNumber;
     private List<Currency>balance;
     private List<Transaction>transactions;
 
-    public Account(int accountNumber, String ownerName, String email, List<Currency> balance, List<Transaction> transactions) {
-        this.accountNumber = accountNumber;
-        this.ownerName = ownerName;
-        this.email = email;
+    public Account(int ownerID, List<Currency> balance, List<Transaction> transactions, int accountNumber) {
+        this.ownerID = ownerID;
         this.balance = balance;
         this.transactions = transactions;
+        this.accountNumber = accountNumber;
     }
 
     public String provideTransaction(Transaction t) throws Exception {
         switch(t.getOperation()) {
             case '+':
-                transactions.add(new Transaction(t.getOperation(), t.getCurrency()));
-                setBalance(new Currency(t.getCurrency().getWaers(),getBalance(t.getCurrency().getWaers()).getWrbtr()+t.getCurrency().getWrbtr()));
-                updateJsonData( t, getBalance(t.getCurrency().getWaers()) );
+                // ucet obsahuje danou menu
+                if (containsCurrency(t.getCurrency().getWaers())) {
+                    transactions.add(new Transaction(t.getOperation(), t.getCurrency()));
+                    setBalance(new Currency(t.getCurrency().getWaers(), getBalance(t.getCurrency().getWaers()).getWrbtr() + t.getCurrency().getWrbtr()));
+                } else {
+                    float exchangeRate = Bank.getExchangeRate(t.getCurrency().getWaers());
+                    float wrbtrCZK = t.getCurrency().getWrbtr() * exchangeRate;
+                    Currency balanceCZK = getBalance("CZK");
+                    String msg = String.format("%s:CZK 1:%.2f",t.getCurrency().getWaers(),exchangeRate);
+                    setBalance(new Currency("CZK",balanceCZK.getWrbtr()+wrbtrCZK));
+                    transactions.add(new Transaction(t.getOperation(), new Currency("CZK", wrbtrCZK), msg ));
+                    t.setMessage(msg);
+                }
+                updateJsonData(t, getBalance(t.getCurrency().getWaers()));
                 return "Transakce probehla uspesne.";
             case '-':
                 // v dane mene je dostatecny zustatek
@@ -70,13 +80,22 @@ public class Account {
         return new Transaction(rndOperator, new Currency(rndWaers,rndWrbtr));
     }
 
+    public boolean containsCurrency(String waers){
+        for (Currency b : balance) {
+            if (b.getWaers().equals(waers)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Currency getBalance(String waers){
         for (Currency b : balance) {
             if (b.getWaers().equals(waers)){
                 return b;
             }
         }
-        throw new RuntimeException("Ucet neobsahuje zustatek v teto mene");
+        return new Currency(waers,-1);
     }
 
     public void setBalance(Currency c){
@@ -89,7 +108,15 @@ public class Account {
         throw new RuntimeException("Ucet neobsahuje zustatek v teto mene");
     }
 
-    public void updateJsonData( Transaction t, Currency b ) throws Exception {
+    public int getAccountNumber() {
+        return accountNumber;
+    }
+
+    public int getOwnerID() {
+        return ownerID;
+    }
+
+    public void updateJsonData(Transaction t, Currency b ) throws Exception {
         Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_BANK_ACCOUNTS);
@@ -128,18 +155,13 @@ public class Account {
         }
     }
 
-    public String getEmail() {
-        return email;
-    }
-
     @Override
     public String toString() {
         return "Account{" +
                 "accountNumber=" + accountNumber +
-                ", ownerName='" + ownerName + '\'' +
-                ", email='" + email + '\'' +
-                ", balance=" + balance +
-                ", transactions=" + transactions +
+                ", ownerID='" + ownerID + '\'' +
+                ", balance=" + balance.toString() +
+                ", transactions=" + transactions.toString() +
                 '}';
     }
 }

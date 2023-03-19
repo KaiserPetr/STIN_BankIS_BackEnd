@@ -5,7 +5,7 @@ public class Const {
     public static final String JSON_FILE = "src/main/resources/data.json";
     public static final String JKEY_BANK_ACCOUNTS = "bankAccounts";
     public static final String JKEY_ACCOUNT_NUMBER = "accountNumber";
-    public static final String JKEY_OWNER_NAME = "ownerName";
+    public static final String JKEY_OWNER_ID = "ownerID";
     public static final String JKEY_EMAIL = "email";
     public static final String JKEY_ACCOUNT_BALANCE = "accountBalance";
     public static final String JKEY_WRBTR = "wrbtr";
@@ -14,4 +14,8 @@ public class Const {
     public static final String JKEY_TRANSACTIONS = "transactions";
     public static final String JKEY_MESSAGE = "msg";
     public static final String EMAIL_SUBJECT = "Banka-ověřovací kód";
+    public static final String JKEY_USERS = "users";
+    public static final String JKEY_ID = "id";
+    public static final String JKEY_FIRSTNAME = "firstname";
+    public static final String JKEY_SURNAME = "surname";
 }

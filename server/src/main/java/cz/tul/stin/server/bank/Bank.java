@@ -13,42 +13,74 @@ import org.json.simple.parser.*;
 public class Bank {
 
     public static List<Currency>exchangeRates;
+    public static List<Account>bankAccounts;
+    public static List<User>users;
     public static String exchangeRatesDate;
 
-    public static Account loadAccountDataFromFile(int accountNumber) throws Exception {
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+    public static void loadDataFromFile() throws IOException, ParseException {
+        bankAccounts = new ArrayList<>();
+        users = new ArrayList<>();
+        Object obj = null;
+
+        obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
 
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_BANK_ACCOUNTS);
 
         for (Object o : ja) {
             JSONObject joi = (JSONObject) o;
-            int currAccNumber = Integer.parseInt(joi.get(Const.JKEY_ACCOUNT_NUMBER).toString());
-            if (accountNumber == currAccNumber) {
-                String owner = joi.get(Const.JKEY_OWNER_NAME).toString();
-                String email = joi.get(Const.JKEY_EMAIL).toString();
-                List<Currency> balance = new ArrayList<Currency>();
-                JSONArray jaBalance = (JSONArray) joi.get(Const.JKEY_ACCOUNT_BALANCE);
-                for (Object oBalance : jaBalance) {
-                    JSONObject joBalance = (JSONObject) oBalance;
-                    float wrbtr = Float.parseFloat(joBalance.get(Const.JKEY_WRBTR).toString());
-                    String waers = joBalance.get(Const.JKEY_WAERS).toString();
-                    balance.add(new Currency(waers, wrbtr));
-                }
-                List<Transaction> transactions = new ArrayList<Transaction>();
-                JSONArray jaTransactions = (JSONArray) joi.get(Const.JKEY_TRANSACTIONS);
-                for (Object oTransaction : jaTransactions) {
-                    JSONObject joTransaction = (JSONObject) oTransaction;
-                    String operation = joTransaction.get(Const.JKEY_OPERATION).toString();
-                    float wrbtr = Float.parseFloat(joTransaction.get(Const.JKEY_WRBTR).toString());
-                    String waers = joTransaction.get(Const.JKEY_WAERS).toString();
-                    String msg = joTransaction.get(Const.JKEY_MESSAGE).toString();
-                    transactions.add(new Transaction(operation.charAt(0), new Currency(waers, wrbtr), msg));
-                }
-                return new Account(accountNumber, owner, email, balance, transactions);
+            int accNumber = Integer.parseInt(joi.get(Const.JKEY_ACCOUNT_NUMBER).toString());
+
+            int ownerID = Integer.parseInt(joi.get(Const.JKEY_OWNER_ID).toString());
+            List<Currency> balance = new ArrayList<Currency>();
+            JSONArray jaBalance = (JSONArray) joi.get(Const.JKEY_ACCOUNT_BALANCE);
+            for (Object oBalance : jaBalance) {
+                JSONObject joBalance = (JSONObject) oBalance;
+                float wrbtr = Float.parseFloat(joBalance.get(Const.JKEY_WRBTR).toString());
+                String waers = joBalance.get(Const.JKEY_WAERS).toString();
+                balance.add(new Currency(waers, wrbtr));
+            }
+            List<Transaction> transactions = new ArrayList<Transaction>();
+            JSONArray jaTransactions = (JSONArray) joi.get(Const.JKEY_TRANSACTIONS);
+            for (Object oTransaction : jaTransactions) {
+                JSONObject joTransaction = (JSONObject) oTransaction;
+                String operation = joTransaction.get(Const.JKEY_OPERATION).toString();
+                float wrbtr = Float.parseFloat(joTransaction.get(Const.JKEY_WRBTR).toString());
+                String waers = joTransaction.get(Const.JKEY_WAERS).toString();
+                String msg = joTransaction.get(Const.JKEY_MESSAGE).toString();
+                transactions.add(new Transaction(operation.charAt(0), new Currency(waers, wrbtr), msg));
+            }
+            bankAccounts.add(new Account(ownerID, balance, transactions, accNumber));
+        }
+
+        ja = (JSONArray) jo.get(Const.JKEY_USERS);
+        for (Object o : ja) {
+            JSONObject joi = (JSONObject) o;
+            int id = Integer.parseInt(joi.get(Const.JKEY_ID).toString());
+            String firstname = joi.get(Const.JKEY_FIRSTNAME).toString();
+            String surname = joi.get(Const.JKEY_SURNAME).toString();
+            String email = joi.get(Const.JKEY_EMAIL).toString();
+            users.add(new User(id, firstname, surname, email));
+        }
+
+
+    }
+
+    public static User getClient(int clientId){
+        for (User u : users){
+            if(u.getId() == clientId)
+                return u;
+        }
+        return null;
+    }
+
+    public static Account getAccount(int clientId) {
+        for (Account a : bankAccounts) {
+            if(clientId == a.getOwnerID()){
+                return a;
             }
         }
-        throw new Exception("Provided json key was not found in json file!");
+        return null;
     }
 
     public static void downloadExchangeRates() throws Exception {

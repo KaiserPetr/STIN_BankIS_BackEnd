@@ -9,7 +9,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
 import java.io.IOException;
-import java.util.Objects;
 
 @RestController
 @CrossOrigin("http://localhost:3000")
@@ -26,27 +25,19 @@ public class LoginController {
         }
     }
     @PostMapping("/")
-    public String login(@RequestBody String accNum) {
-        accNum = accNum.replace("=","");
-        Account a = Bank.getAccount(Integer.parseInt(accNum));
-        if (a != null) {
+    public String login(@RequestBody String clientId) {
+        clientId = clientId.replace("=","");
+        User client = Bank.getClient(Integer.parseInt(clientId));
+        if (client != null) {
             String code = Bank.generateRandomCode();
             String msg = String.format("Váš kód pro přilášení je: %s",code);
-            service.sendSimpleEmail(Objects.requireNonNull(Bank.getAccountOwner(a)).getEmail(), Const.EMAIL_SUBJECT,msg);
+            service.sendSimpleEmail(client.getEmail(), Const.EMAIL_SUBJECT,msg);
             return code;
         } else {
             return "-1";
         }
     }
 
-    public static boolean isNumeric(String str) {
-        try {
-            Integer.parseInt(str);
-            return true;
-        } catch(NumberFormatException e){
-            return false;
-        }
-    }
     // TODO toto volat jen, kdyz je MD kazdou minutu mezi 14:20-14:50
     //Bank.downloadExchangeRates();
 }
