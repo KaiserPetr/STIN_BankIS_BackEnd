@@ -3,12 +3,10 @@ package cz.tul.stin.server.bank;
 import java.util.*;
 import java.io.*;
 import java.net.URL;
-
 import cz.tul.stin.server.config.Const;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
-
 
 public class Bank {
 
@@ -44,11 +42,12 @@ public class Bank {
             JSONArray jaTransactions = (JSONArray) joi.get(Const.JKEY_TRANSACTIONS);
             for (Object oTransaction : jaTransactions) {
                 JSONObject joTransaction = (JSONObject) oTransaction;
+                String transID = joTransaction.get(Const.JKEY_ID).toString();
                 String operation = joTransaction.get(Const.JKEY_OPERATION).toString();
                 float wrbtr = Float.parseFloat(joTransaction.get(Const.JKEY_WRBTR).toString());
                 String waers = joTransaction.get(Const.JKEY_WAERS).toString();
                 String msg = joTransaction.get(Const.JKEY_MESSAGE).toString();
-                transactions.add(new Transaction(operation.charAt(0), new Currency(waers, wrbtr), msg));
+                transactions.add(new Transaction(transID, operation.charAt(0), new Currency(waers, wrbtr), msg));
             }
             bankAccounts.add(new Account(ownerID, balance, transactions, accNumber));
         }
@@ -108,6 +107,14 @@ public class Bank {
         } catch (Exception e){
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<String>getAllCurrencies(){
+        List<String>curr = new ArrayList<>();
+        for (Currency c : exchangeRates){
+            curr.add(c.getWaers());
+        }
+        return curr;
     }
 
     public static String generateRandomCode(){

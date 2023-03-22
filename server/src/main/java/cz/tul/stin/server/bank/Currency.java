@@ -1,5 +1,5 @@
 package cz.tul.stin.server.bank;
-import java.util.*;
+
 public class Currency {
     private String waers;
     private float wrbtr;

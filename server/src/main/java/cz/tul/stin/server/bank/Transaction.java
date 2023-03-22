@@ -2,26 +2,32 @@ package cz.tul.stin.server.bank;
 
 public class Transaction {
 
+    private String id;
     private char operation;
     private Currency currency;
     private String message;
 
-    public Transaction(char operation, Currency currency) {
+    public Transaction(String id, char operation, Currency currency, String message) {
+        this.id = id;
         this.operation = operation;
         this.currency = currency;
-        this.message = "";
+        this.message = message;
     }
 
     public void setMessage(String message) {
         this.message = message;
     }
 
-    public Transaction(char operation, Currency currency, String message) {
+    public Transaction(String id, char operation, Currency currency) {
+        this.id = id;
         this.operation = operation;
         this.currency = currency;
-        this.message = message;
+        this.message = "";
     }
 
+    public String getId() {
+        return id;
+    }
     public char getOperation() {
         return operation;
     }
@@ -37,8 +43,9 @@ public class Transaction {
     @Override
     public String toString() {
         return "Transaction{" +
-                "operation=" + operation +
-                ", currency=" + currency +
+                "id='" + id + '\'' +
+                ", operation=" + operation +
+                ", currency=" + currency.toString() +
                 ", message='" + message + '\'' +
                 '}';
     }

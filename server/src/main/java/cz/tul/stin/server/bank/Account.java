@@ -19,31 +19,33 @@ public class Account {
         this.accountNumber = accountNumber;
     }
 
-    public String provideTransaction(Transaction t) throws Exception {
+    public int provideTransaction(Transaction t) throws Exception {
+        int tResult;
         switch(t.getOperation()) {
             case '+':
                 // ucet obsahuje danou menu
                 if (containsCurrency(t.getCurrency().getWaers())) {
-                    transactions.add(new Transaction(t.getOperation(), t.getCurrency()));
+                    transactions.add(new Transaction(t.getId(), t.getOperation(), t.getCurrency(), t.getMessage() ));
                     setBalance(new Currency(t.getCurrency().getWaers(), getBalance(t.getCurrency().getWaers()).getWrbtr() + t.getCurrency().getWrbtr()));
+                    tResult = 0;
                 } else {
                     float exchangeRate = Bank.getExchangeRate(t.getCurrency().getWaers());
                     float wrbtrCZK = t.getCurrency().getWrbtr() * exchangeRate;
                     Currency balanceCZK = getBalance("CZK");
-                    String msg = String.format("%s:CZK 1:%.2f",t.getCurrency().getWaers(),exchangeRate);
+                    transactions.add(new Transaction(t.getId(), t.getOperation(), t.getCurrency(), t.getMessage() ));
                     setBalance(new Currency("CZK",balanceCZK.getWrbtr()+wrbtrCZK));
-                    transactions.add(new Transaction(t.getOperation(), new Currency("CZK", wrbtrCZK), msg ));
-                    t.setMessage(msg);
+                    tResult = 1;
                 }
                 updateJsonData(t, getBalance(t.getCurrency().getWaers()));
-                return "Transakce probehla uspesne.";
+                return tResult;
             case '-':
                 // v dane mene je dostatecny zustatek
                 if (getBalance(t.getCurrency().getWaers()).getWrbtr() >= t.getCurrency().getWrbtr() ){
-                    transactions.add(new Transaction(t.getOperation(), t.getCurrency()));
+                    transactions.add(new Transaction(t.getId(), t.getOperation(), t.getCurrency(), t.getMessage()));
                     setBalance(new Currency(t.getCurrency().getWaers(),getBalance(t.getCurrency().getWaers()).getWrbtr()-t.getCurrency().getWrbtr()));
                     updateJsonData( t, getBalance(t.getCurrency().getWaers()) );
-                    return "Transakce probehla uspesne.";
+                    tResult = 0;
+                    break;
                 } else {
                     if (!t.getCurrency().getWaers().equals("CZK")) {
                         //dana mena nema dostatecny zustatek, prevod na czk
@@ -51,22 +53,24 @@ public class Account {
                         float wrbtrCZK = t.getCurrency().getWrbtr() * exchangeRate;
                         Currency balanceCZK = getBalance("CZK");
                         if (balanceCZK.getWrbtr() >= wrbtrCZK) {
-                            String msg = String.format("%s:CZK 1:%.2f",t.getCurrency().getWaers(),exchangeRate);
-                            transactions.add(new Transaction(t.getOperation(), new Currency("CZK", wrbtrCZK), msg ));
+                            //transactions.add(new Transaction(t.getId(), t.getOperation(), new Currency("CZK", wrbtrCZK), msg ));
+                            transactions.add(new Transaction(t.getId(), t.getOperation(), t.getCurrency(), t.getMessage() ));
                             setBalance(new Currency("CZK",balanceCZK.getWrbtr()-wrbtrCZK));
-                            t.setMessage(msg);
                             updateJsonData( t, getBalance("CZK") );
-                            return "Transakce probehla uspesne.";
+                            tResult = 1;
                         } else {
-                            return "Chyba, nedostatecny zustatek.";
+                            tResult = 2;
                         }
                     } else {
-                        return "Chyba, nedostatecny zustatek.";
+                        tResult = 2;
                     }
+                    break;
                 }
             default:
-                return "Chyba, zadan spatny operator transakce.";
+                tResult = 3;
+                break;
         }
+        return tResult;
     }
 
     public Transaction generateRandomTransaction(){
@@ -74,10 +78,10 @@ public class Account {
         int rndIndexOp = new Random().nextInt(operators.length);
         char rndOperator = operators[rndIndexOp];
         int rndIndexBalance = new Random().nextInt(operators.length);
-        String rndWaers = balance.get(rndIndexBalance).getWaers();
+        String rndWaers = Bank.exchangeRates.get(rndIndexBalance).getWaers();
         int rndWrbtr = (int)Math.round(Math.random() * 1000); //random cele cislo od 0 do 1000
-
-        return new Transaction(rndOperator, new Currency(rndWaers,rndWrbtr));
+        int id = transactions.size() + 1;
+        return new Transaction(String.format("%04d",id), rndOperator, new Currency(rndWaers,rndWrbtr));
     }
 
     public boolean containsCurrency(String waers){
@@ -97,6 +101,14 @@ public class Account {
         }
         return new Currency(waers,-1);
     }
+    
+    public List<String>getCurrencies(){
+        List<String>currencies = new ArrayList<>();
+        for (Currency b : balance) {
+            currencies.add(b.getWaers());
+        }
+        return currencies;
+    }
 
     public void setBalance(Currency c){
         for (Currency b : balance) {
@@ -114,6 +126,10 @@ public class Account {
 
     public int getOwnerID() {
         return ownerID;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
     }
 
     public void updateJsonData(Transaction t, Currency b ) throws Exception {
@@ -139,6 +155,7 @@ public class Account {
 
                 JSONArray jaTransactions = (JSONArray) joi.get(Const.JKEY_TRANSACTIONS);
                 JSONObject newTransaction = new JSONObject();
+                newTransaction.put(Const.JKEY_ID,t.getId());
                 newTransaction.put(Const.JKEY_WAERS,t.getCurrency().getWaers());
                 newTransaction.put(Const.JKEY_WRBTR,String.valueOf(t.getCurrency().getWrbtr()));
                 newTransaction.put(Const.JKEY_OPERATION,String.valueOf(t.getOperation()));
