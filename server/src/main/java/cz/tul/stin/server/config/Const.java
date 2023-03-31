@@ -7,7 +7,6 @@ public class Const {
     public static final String JKEY_ACCOUNT_NUMBER = "accountNumber";
     public static final String JKEY_OWNER_ID = "ownerID";
     public static final String JKEY_EMAIL = "email";
-    public static final String JKEY_ACCOUNT_BALANCE = "accountBalance";
     public static final String JKEY_WRBTR = "wrbtr";
     public static final String JKEY_WAERS = "waers";
     public static final String JKEY_OPERATION = "operation";
@@ -18,4 +17,6 @@ public class Const {
     public static final String JKEY_ID = "id";
     public static final String JKEY_FIRSTNAME = "firstname";
     public static final String JKEY_SURNAME = "surname";
+    public static final String JKEY_CNB = "cnb";
+    public static final String JKEY_CNB_DATE = "cnbDate";
 }

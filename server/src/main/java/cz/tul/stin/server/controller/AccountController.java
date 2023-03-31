@@ -1,29 +1,32 @@
 package cz.tul.stin.server.controller;
-import cz.tul.stin.server.bank.*;
+import cz.tul.stin.server.model.*;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static cz.tul.stin.server.model.Account.createNewAccount;
+import static cz.tul.stin.server.model.Transaction.*;
+import static cz.tul.stin.server.model.User.getUserAccounts;
+import static cz.tul.stin.server.model.User.getUserData;
+
 
 @RestController
 @CrossOrigin("http://localhost:3000")
 public class AccountController {
-    Account a;
-    @PostMapping("/getUserData")
-    public User getUser(@RequestBody String clientId){
-        return Bank.getClient(Integer.parseInt(clientId.replace("=","")));
-    }
 
-    @PostMapping("/getAccountData")
-    public Account getAccountData(@RequestBody String clientId){
-        a = Bank.getAccount(Integer.parseInt(clientId.replace("=","")));
-        return a;
+    @PostMapping("/getUserData")
+    public User getUser(@RequestBody String clientId) throws Exception {
+        return getUserData(Integer.parseInt(clientId.replace("=","")));
     }
-    @PostMapping("/getAccountBalance")
-    public Currency getBalance(@RequestBody String waers){
-        return a.getBalance(waers.replace("=",""));
+    @PostMapping("/getAccountsData")
+    public List<Account> getAccountsData(@RequestBody String clientId) throws Exception {
+        return getUserAccounts(Integer.parseInt(clientId.replace("=","")));
     }
 
     @PostMapping("/getExchangeRate")
-    public Float getExRate(@RequestBody String waers) {return Bank.getExchangeRate(waers.replace("=","")); }
+    public Float getExRate(@RequestBody String waers) throws Exception {return Account.getExchangeRate(waers.replace("=","")); }
 
     @PostMapping("/newTransaction")
     public int newTrans(@RequestBody Object params) {
@@ -31,44 +34,37 @@ public class AccountController {
             String[] p = params.toString().replace("[","").replace("]","").split(",");
             for (int i = 0; i < p.length; i++)
                 p[i] = p[i].trim();
-            Transaction t;
-            if (p.length > 4) {
-                t = new Transaction(p[0], p[1].charAt(0),
-                        new Currency(p[3], Float.parseFloat(p[2])),
-                        p[4]);
-            } else {
-                t = new Transaction(p[0], p[1].charAt(0),
-                        new Currency(p[3], Float.parseFloat(p[2])));
-            }
-            return a.provideTransaction(t);
+            return provideTransaction(p[1].charAt(0),Float.parseFloat(p[2]),p[3],Integer.parseInt(p[0]));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    @GetMapping("/getCurrencies")
-    public List<String>getCurrencies(){ return a.getCurrencies();}
 
     @GetMapping("/getAllCurrencies")
     public List<String>getAllCurrencies() throws Exception {
-        Bank.downloadExchangeRates();
-        List<String>list=Bank.getAllCurrencies();
-        list.add(0,"CZK");
-        return list;}
-
-    @GetMapping("/getTransactions")
-    public List<Transaction>getTransactions(){ return a.getTransactions(); }
-
-    @GetMapping("/generateRandomTransaction")
-    public Transaction genRndTrans(){ return a.generateRandomTransaction(); }
-
-    @GetMapping("/getNewID")
-    public String getNewId(){
-        return String.format("%04d",a.getTransactions().size() + 1);
+        return new ArrayList<>( Arrays.asList(Bank.CURRENCIES) );
     }
+
+    @PostMapping("/getTransactions")
+    public List<Transaction>getAccTransactions(@RequestBody String accNum) throws Exception {
+        return getTransactions(Integer.parseInt(accNum.replace("=","")));
+    }
+
+    @PostMapping("/generateRandomTransaction")
+    public Transaction genRndTrans(@RequestBody String accNum){ return generateRandomTransaction(Integer.parseInt(accNum.replace("=",""))); }
 
     @GetMapping("/downloadExchangeRates")
     public String downloadExchangeRates() throws Exception {
         Bank.downloadExchangeRates();
-        return Bank.exchangeRatesDate;
+        return Bank.getExchanegRateDate();
+    }
+
+    @PostMapping("/createNewAccount")
+    public int createNewAcc (@RequestBody Object params) throws Exception{
+        String[] p = params.toString().replace("[","").replace("]","").split(",");
+        for (int i = 0; i < p.length; i++) {
+            p[i] = p[i].trim();
+        }
+        return createNewAccount(Integer.parseInt(p[0]),Integer.parseInt(p[1]),p[2]);
     }
 }

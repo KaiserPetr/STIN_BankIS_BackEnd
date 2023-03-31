@@ -24,7 +24,7 @@ export default function Login({ clientCallback, loginCallback }) {
             setLoginMsg('Neznámé klientské číslo, opakujte zadání.')
           } else {
             loginCode = res.data
-            console.log(loginCode)
+            //console.log(loginCode)
             navigate("/verify")
             clientCallback(clientId)
             loginCallback(loginCode)
