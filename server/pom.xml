@@ -11,8 +11,8 @@
 	<groupId>cz.tul.sti.2023</groupId>
 	<artifactId>server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>cv02</name>
-	<description>CV02 - Spring boot with maven and DI</description>
+	<name>STIN_BankIS</name>
+	<description>Semestralni prace STIN</description>
 	<properties>
 		<java.version>8</java.version>
 		<sonar.organization>kaiserpetr</sonar.organization>

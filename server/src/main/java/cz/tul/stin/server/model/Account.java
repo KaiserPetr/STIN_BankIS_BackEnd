@@ -76,23 +76,6 @@ public class Account {
         }
     }
 
-    public static float getExchangeRate(String waers) throws Exception {
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
-        JSONObject jo = (JSONObject) obj;
-
-        JSONArray ja = (JSONArray) jo.get(Const.JKEY_CNB);
-
-        for (Object o : ja) {
-            JSONObject joi = (JSONObject) o;
-            String jWaers = joi.get(Const.JKEY_WAERS).toString();
-            if (jWaers.equals(waers)) {
-                return Float.parseFloat(joi.get(Const.JKEY_WRBTR).toString().replace(",","."));
-            }
-        }
-
-        throw new RuntimeException("Mena nenalezena.");
-    }
-
     public static boolean checkIfAccountExists(int accountNumber) throws Exception {
         Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
