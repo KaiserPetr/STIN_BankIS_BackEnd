@@ -1,19 +1,48 @@
 package cz.tul.stin.server.model;
 
 import cz.tul.stin.server.config.Const;
+import org.apache.commons.io.FileUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
 public class BankTest {
 
+    @BeforeEach
+    public void setup() throws IOException {
+
+        File copied = new File("src/main/resources/dataTestBank.json");
+        File original = new File("src/main/resources/data.json");
+
+        try (
+                InputStream in = new BufferedInputStream(
+                        Files.newInputStream(original.toPath()));
+                OutputStream out = new BufferedOutputStream(
+                        Files.newOutputStream(copied.toPath()))) {
+
+            byte[] buffer = new byte[1024];
+            int lengthRead;
+            while ((lengthRead = in.read(buffer)) > 0) {
+                out.write(buffer, 0, lengthRead);
+                out.flush();
+            }
+        }
+
+        Bank.JSON_FILE = "src/main/resources/dataTestBank.json";
+    }
+
     @Test
     public void testDownloadExchangeRates() {
         Assertions.assertDoesNotThrow(Bank::downloadExchangeRates);
-        File file = new File(Const.JSON_FILE);
+        File file = new File(Bank.JSON_FILE);
         Assertions.assertTrue(file.exists() && !file.isDirectory());
     }
 
@@ -24,7 +53,7 @@ public class BankTest {
 
     @Test
     public void testUpdateExchanegRateDate() throws Exception {
-        String newDate = "2022-04-01";
+        String newDate = "30.03.2023";
         Bank.updateExchanegRateDate(newDate);
         Assertions.assertEquals(Bank.getExchanegRateDate(), newDate);
     }
@@ -49,6 +78,14 @@ public class BankTest {
         String code = Bank.generateRandomCode();
         Assertions.assertNotNull(code);
         Assertions.assertEquals(code.length(), 4);
+    }
+
+    @AfterEach
+    public void cleanup() {
+        // delete the test file
+        File file = new File("src/main/resources/dataTestBank.json");
+        file.delete();
+        Bank.JSON_FILE = "src/main/resources/data.json";
     }
 
 }
