@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BankTest {
-/*
+
     @Test
     public void testDownloadExchangeRates() {
         Assertions.assertDoesNotThrow(Bank::downloadExchangeRates);
@@ -19,7 +19,7 @@ public class BankTest {
 
     @Test
     public void testGetExchanegRateDate() throws Exception {
-        Assertions.assertEquals(Bank.getExchanegRateDate(), Const.JKEY_CNB_DATE);
+        Assertions.assertEquals(Bank.getExchanegRateDate(), "31.03.2023");
     }
 
     @Test
@@ -50,6 +50,5 @@ public class BankTest {
         Assertions.assertNotNull(code);
         Assertions.assertEquals(code.length(), 4);
     }
-    
- */
+
 }
