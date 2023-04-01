@@ -136,7 +136,7 @@ public class Transaction {
     }
 
     public static void writeTransactionToJson(Transaction t) throws Exception{
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(Bank.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_TRANSACTIONS);
 
@@ -147,7 +147,7 @@ public class Transaction {
         newTransaction.put(Const.JKEY_WAERS,t.getWaers());
         newTransaction.put(Const.JKEY_MESSAGE,t.getMessage());
         ja.add(newTransaction);
-        try (FileWriter file = new FileWriter(Const.JSON_FILE)) {
+        try (FileWriter file = new FileWriter(Bank.JSON_FILE)) {
             file.write(jo.toString());
         }
     }
@@ -164,7 +164,7 @@ public class Transaction {
 
     public static List<Transaction> getTransactions(int accNumber) throws Exception{
         List<Transaction> transactions = new ArrayList<>();
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(Bank.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_TRANSACTIONS);
         for (Object o : ja) {

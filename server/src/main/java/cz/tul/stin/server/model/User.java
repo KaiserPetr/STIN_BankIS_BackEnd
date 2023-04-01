@@ -37,7 +37,7 @@ public class User {
     }
 
     public static User getUserData(int id) throws Exception {
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(Bank.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
 
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_USERS);
@@ -58,7 +58,7 @@ public class User {
 
     public static List<Account> getUserAccounts(int userId) throws Exception {
         List<Account> accounts = new ArrayList<>();
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(Bank.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_BANK_ACCOUNTS);
         for (Object o : ja) {

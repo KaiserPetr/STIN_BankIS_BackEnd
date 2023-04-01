@@ -18,7 +18,7 @@ public class Account {
         this.wrbtr = wrbtr;
         this.waers = waers;
     }
-
+    /*
     public static Account getAccountFromJson (int accNum) throws Exception {
         Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
@@ -37,9 +37,10 @@ public class Account {
         }
         throw new RuntimeException("Ucet nenalezen.");
     }
+    */
 
     public static Account getUsersCZKAccount (int ownerID) throws Exception{
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(Bank.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
 
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_BANK_ACCOUNTS);
@@ -58,7 +59,7 @@ public class Account {
     }
 
     public static void updateAccountBalance(int accNum, float newBalance) throws Exception{
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(Bank.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
 
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_BANK_ACCOUNTS);
@@ -71,13 +72,13 @@ public class Account {
                 break;
             }
         }
-        try (FileWriter file = new FileWriter(Const.JSON_FILE)) {
+        try (FileWriter file = new FileWriter(Bank.JSON_FILE)) {
             file.write(jo.toString());
         }
     }
 
     public static boolean checkIfAccountExists(int accountNumber) throws Exception {
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(Bank.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
 
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_BANK_ACCOUNTS);
@@ -96,7 +97,7 @@ public class Account {
         if (checkIfAccountExists(accountNumber)){
             return 1;
         } else {
-            Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+            Object obj = new JSONParser().parse(new FileReader(Bank.JSON_FILE));
             JSONObject jo = (JSONObject) obj;
             JSONArray ja = (JSONArray) jo.get(Const.JKEY_BANK_ACCOUNTS);
 
@@ -106,7 +107,7 @@ public class Account {
             newAccount.put(Const.JKEY_WAERS,waers);
             newAccount.put(Const.JKEY_OWNER_ID,ownerID);
             ja.add(newAccount);
-            try (FileWriter file = new FileWriter(Const.JSON_FILE)) {
+            try (FileWriter file = new FileWriter(Bank.JSON_FILE)) {
                 file.write(jo.toString());
                 return 0;
             }
