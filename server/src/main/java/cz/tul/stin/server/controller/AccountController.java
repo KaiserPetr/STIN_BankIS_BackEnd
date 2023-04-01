@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static cz.tul.stin.server.model.Account.createNewAccount;
+import static cz.tul.stin.server.model.Bank.getExchangeRate;
 import static cz.tul.stin.server.model.Transaction.*;
 import static cz.tul.stin.server.model.User.getUserAccounts;
 import static cz.tul.stin.server.model.User.getUserData;
@@ -26,7 +27,7 @@ public class AccountController {
     }
 
     @PostMapping("/getExchangeRate")
-    public Float getExRate(@RequestBody String waers) throws Exception {return Account.getExchangeRate(waers.replace("=","")); }
+    public Float getExRate(@RequestBody String waers) throws Exception {return getExchangeRate(waers.replace("=","")); }
 
     @PostMapping("/newTransaction")
     public int newTrans(@RequestBody Object params) {
