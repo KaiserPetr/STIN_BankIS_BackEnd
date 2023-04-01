@@ -1,9 +1,5 @@
 package cz.tul.stin.server.model;
 
-import cz.tul.stin.server.config.Const;
-import org.apache.commons.io.FileUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
