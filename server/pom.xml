@@ -11,8 +11,8 @@
 	<groupId>cz.tul.sti.2023</groupId>
 	<artifactId>server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>STIN_BankIS</name>
-	<description>Semestralni prace STIN</description>
+	<name>STIN_BankIS_backend</name>
+	<description>Semestralni prace STIN backend</description>
 	<properties>
 		<java.version>8</java.version>
 		<sonar.organization>kaiserpetr</sonar.organization>
