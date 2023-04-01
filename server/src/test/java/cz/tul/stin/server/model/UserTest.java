@@ -1,8 +1,5 @@
 package cz.tul.stin.server.model;
 
-import cz.tul.stin.server.model.Account;
-import cz.tul.stin.server.model.User;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
