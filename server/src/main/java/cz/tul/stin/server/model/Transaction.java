@@ -13,6 +13,7 @@ import java.util.Random;
 
 import static cz.tul.stin.server.model.Account.*;
 import static cz.tul.stin.server.model.Account.getUsersCZKAccount;
+import static cz.tul.stin.server.model.Bank.getExchangeRate;
 import static cz.tul.stin.server.model.User.getUserAccounts;
 
 public class Transaction {
