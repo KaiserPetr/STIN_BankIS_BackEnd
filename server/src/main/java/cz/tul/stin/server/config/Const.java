@@ -2,7 +2,6 @@ package cz.tul.stin.server.config;
 
 public class Const {
     public static final String CNB_URL = "https://www.cnb.cz/cs/financni-trhy/devizovy-trh/kurzy-devizoveho-trhu/kurzy-devizoveho-trhu/denni_kurz.txt";
-    public static final String JSON_FILE = "src/main/resources/data.json";
     public static final String JKEY_BANK_ACCOUNTS = "bankAccounts";
     public static final String JKEY_ACCOUNT_NUMBER = "accountNumber";
     public static final String JKEY_OWNER_ID = "ownerID";

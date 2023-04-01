@@ -11,6 +11,7 @@ import org.json.simple.parser.*;
 public class Bank {
 
     public static final String [] CURRENCIES = {"AUD","CAD","CZK","EUR","GBP","HUF","PLN","CHF","USD"};
+    public static String JSON_FILE = "src/main/resources/data.json";
 
     public static void downloadExchangeRates() throws Exception {
         URL url = new URL(Const.CNB_URL);
@@ -40,22 +41,22 @@ public class Bank {
     }
 
     public static String getExchanegRateDate() throws Exception{
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(JSON_FILE));
         JSONObject jo = (JSONObject) obj;
         return jo.get(Const.JKEY_CNB_DATE).toString();
     }
     public static void updateExchanegRateDate(String newDate) throws Exception{
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(JSON_FILE));
         JSONObject jo = (JSONObject) obj;
         jo.replace(Const.JKEY_CNB_DATE,newDate);
 
-        try (FileWriter file = new FileWriter(Const.JSON_FILE)) {
+        try (FileWriter file = new FileWriter(JSON_FILE)) {
             file.write(jo.toString());
         }
     }
 
     public static void updateExchangeRate(Float wrbtr, String waers) throws Exception{
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(JSON_FILE));
         JSONObject jo = (JSONObject) obj;
 
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_CNB);
@@ -70,13 +71,13 @@ public class Bank {
 
         }
 
-        try (FileWriter file = new FileWriter(Const.JSON_FILE)) {
+        try (FileWriter file = new FileWriter(JSON_FILE)) {
             file.write(jo.toString());
         }
     }
 
     public static float getExchangeRate(String waers) throws Exception {
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(JSON_FILE));
         JSONObject jo = (JSONObject) obj;
 
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_CNB);

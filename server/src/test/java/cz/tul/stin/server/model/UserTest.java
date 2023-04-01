@@ -2,14 +2,42 @@ package cz.tul.stin.server.model;
 
 import cz.tul.stin.server.model.Account;
 import cz.tul.stin.server.model.User;
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
 
 @SpringBootTest
 public class UserTest {
+
+    @BeforeEach
+    public void setup() throws IOException {
+        // create a test file with one account
+        File copied = new File("src/main/resources/dataTestUser.json");
+        File original = new File("src/main/resources/data.json");
+
+        try (
+                InputStream in = new BufferedInputStream(
+                        Files.newInputStream(original.toPath()));
+                OutputStream out = new BufferedOutputStream(
+                        Files.newOutputStream(copied.toPath()))) {
+
+            byte[] buffer = new byte[1024];
+            int lengthRead;
+            while ((lengthRead = in.read(buffer)) > 0) {
+                out.write(buffer, 0, lengthRead);
+                out.flush();
+            }
+        }
+
+        Bank.JSON_FILE = "src/main/resources/dataTestUser.json";
+    }
 
     @Test
     public void testGetUserData() throws Exception {
@@ -42,6 +70,14 @@ public class UserTest {
         // Test user with multiple accounts
         accounts = User.getUserAccounts(1234);
         Assertions.assertEquals(2, accounts.size());
+    }
+
+    @AfterEach
+    public void cleanup() {
+        // delete the test file
+        File file = new File("src/main/resources/dataTestUser.json");
+        file.delete();
+        Bank.JSON_FILE = "src/main/resources/data.json";
     }
 
 }
