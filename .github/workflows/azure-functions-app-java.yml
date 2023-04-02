@@ -21,7 +21,7 @@ name: Deploy Java project to Azure Function App
 on:
   push:
     branches:
-    - ["master"]
+    - "master"
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'BankIS'   # set this to your function app name on Azure
