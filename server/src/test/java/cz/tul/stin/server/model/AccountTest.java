@@ -98,6 +98,20 @@ public class AccountTest {
         Assertions.assertFalse(Account.checkIfAccountExists(789));
     }
 
+    @Test
+    public void testGetAccountFromJson() throws Exception {
+        Account account = Account.getAccountFromJson(123);
+        Assertions.assertEquals(456, account.getOwnerID());
+        Assertions.assertEquals(123, account.getAccountNumber());
+        Assertions.assertEquals(1000, account.getWrbtr());
+        Assertions.assertEquals("CZK", account.getWaers());
+    }
+
+    @Test
+    public void testGetAccountFromJsonNotFound() {
+        Assertions.assertThrows(RuntimeException.class, () -> Account.getAccountFromJson(999999));
+    }
+
     @AfterEach
     public void cleanup() {
         // delete the test file

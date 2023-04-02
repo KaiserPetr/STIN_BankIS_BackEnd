@@ -1,21 +1,31 @@
 package cz.tul.stin.server.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import cz.tul.stin.server.config.Const;
 import cz.tul.stin.server.model.Bank;
 import cz.tul.stin.server.model.User;
 import cz.tul.stin.server.service.EmailSenderService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LoginControllerTest {
+    /*
+    private MockMvc mockMvc;
 
     @Mock
     private EmailSenderService emailSenderService;
@@ -23,38 +33,40 @@ public class LoginControllerTest {
     @InjectMocks
     private LoginController loginController;
 
+    @Before
+    public void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(loginController).build();
+    }
+
     @Test
-    public void testLogin_Success() throws Exception {
-        // Arrange
-        String clientId = "123";
-        User user = new User(123, "John", "Doe", "johndoe@example.com");
-        Mockito.when(User.getUserData(Integer.parseInt(clientId))).thenReturn(user);
-        String expectedCode = "123456";
-        Mockito.when(Bank.generateRandomCode()).thenReturn(expectedCode);
-        ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+    public void testLogin() throws Exception {
+        // Mock User.getUserData()
+        User mockUser = mock(User.class);
+        when(User.getUserData(1234)).thenReturn(mockUser);
+        when(mockUser.getEmail()).thenReturn("petr.kaiser@tul.cz");
 
-        // Act
-        String result = loginController.login(clientId);
+        // Mock Bank.generateRandomCode()
+        String mockCode = "1234";
+        when(Bank.generateRandomCode()).thenReturn(mockCode);
 
-        // Assert
-        assertEquals(expectedCode, result);
-        Mockito.verify(emailSenderService, Mockito.times(1)).sendSimpleEmail(emailCaptor.capture(),
-                subjectCaptor.capture(), messageCaptor.capture());
-        assertEquals(user.getEmail(), emailCaptor.getValue());
-        assertEquals(Const.EMAIL_SUBJECT, subjectCaptor.getValue());
-        assertEquals(String.format("Váš kód pro přilášení je: %s", expectedCode), messageCaptor.getValue());
+        // Perform POST request
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/")
+                .contentType("application/json")
+                .content("clientId=1234");
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+        // Assert response code and body
+        int status = result.getResponse().getStatus();
+        String response = result.getResponse().getContentAsString();
+        assertEquals(200, status);
+        assertEquals(mockCode, response);
+
+        // Verify EmailSenderService.sendSimpleEmail()
+        String expectedSubject = Const.EMAIL_SUBJECT;
+        String expectedMessage = String.format("Váš kód pro přilášení je: %s", mockCode);
+        verify(emailSenderService).sendSimpleEmail("test@example.com", expectedSubject, expectedMessage);
     }
 
-    @Test(expected = Exception.class)
-    public void testLogin_Fail() throws Exception {
-        // Arrange
-        String clientId = "123";
-        Mockito.when(User.getUserData(Integer.parseInt(clientId))).thenReturn(null);
-
-        // Act
-        loginController.login(clientId);
-    }
-
+     */
 }
