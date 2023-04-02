@@ -1,30 +1,23 @@
 package cz.tul.stin.server.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.tul.stin.server.model.Account;
+import cz.tul.stin.server.config.Const;
 import cz.tul.stin.server.model.Bank;
-import cz.tul.stin.server.model.Transaction;
 import cz.tul.stin.server.model.User;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import cz.tul.stin.server.service.EmailSenderService;
+import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class AccountControllerTest {
@@ -93,5 +86,50 @@ class AccountControllerTest {
                 .andExpect(content().string("1.2"));
     }
     */
+
+    @RunWith(MockitoJUnitRunner.class)
+    public static class LoginControllerTest {
+
+        @Mock
+        private EmailSenderService emailSenderService;
+
+        @InjectMocks
+        private LoginController loginController;
+
+        @org.junit.Test
+        public void testLogin_Success() throws Exception {
+            // Arrange
+            String clientId = "123";
+            User user = new User(123, "John", "Doe", "johndoe@example.com");
+            when(User.getUserData(Integer.parseInt(clientId))).thenReturn(user);
+            String expectedCode = "123456";
+            when(Bank.generateRandomCode()).thenReturn(expectedCode);
+            ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+
+            // Act
+            String result = loginController.login(clientId);
+
+            // Assert
+            assertEquals(expectedCode, result);
+            Mockito.verify(emailSenderService, Mockito.times(1)).sendSimpleEmail(emailCaptor.capture(),
+                    subjectCaptor.capture(), messageCaptor.capture());
+            assertEquals(user.getEmail(), emailCaptor.getValue());
+            assertEquals(Const.EMAIL_SUBJECT, subjectCaptor.getValue());
+            assertEquals(String.format("Váš kód pro přilášení je: %s", expectedCode), messageCaptor.getValue());
+        }
+
+        @Test(expected = Exception.class)
+        public void testLogin_Fail() throws Exception {
+            // Arrange
+            String clientId = "123";
+            when(User.getUserData(Integer.parseInt(clientId))).thenReturn(null);
+
+            // Act
+            loginController.login(clientId);
+        }
+
+    }
 }
 

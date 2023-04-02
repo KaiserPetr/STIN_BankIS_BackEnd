@@ -18,9 +18,10 @@ public class Account {
         this.wrbtr = wrbtr;
         this.waers = waers;
     }
-    /*
+
+    //TODO test
     public static Account getAccountFromJson (int accNum) throws Exception {
-        Object obj = new JSONParser().parse(new FileReader(Const.JSON_FILE));
+        Object obj = new JSONParser().parse(new FileReader(Bank.JSON_FILE));
         JSONObject jo = (JSONObject) obj;
 
         JSONArray ja = (JSONArray) jo.get(Const.JKEY_BANK_ACCOUNTS);
@@ -37,7 +38,6 @@ public class Account {
         }
         throw new RuntimeException("Ucet nenalezen.");
     }
-    */
 
     public static Account getUsersCZKAccount (int ownerID) throws Exception{
         Object obj = new JSONParser().parse(new FileReader(Bank.JSON_FILE));

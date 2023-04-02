@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static cz.tul.stin.server.model.Account.getAccountFromJson;
+import static cz.tul.stin.server.model.Account.getUsersCZKAccount;
 import static cz.tul.stin.server.model.Transaction.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -62,31 +64,134 @@ class TransactionTest {
         assertEquals("EUR", t.getWaers());
         assertEquals("", t.getMessage());
     }
-    /*
+
+    //T bad operator
     @Test
-    public void testProvideTransactionForCzkAccount() throws Exception {
-        int userID = 1234;
-        Account czkAccount = Account.getUsersCZKAccount(1234);
+    public void testProvideTransactionBadOperator() throws Exception {
+        int result = provideTransaction('x',100,"CZK",1234);
+        assertEquals (1, result);
+    }
+
+    // T plus CZK
+    @Test
+    public void testProvideTransactionPlusOnCZK() throws Exception {
+
+        Account czkAccount = getUsersCZKAccount(1234);
         float balanceBefore = czkAccount.getWrbtr();
-        int accNum = Transaction.provideTransaction('+', 200.0f, "CZK", userID);
+        int result = provideTransaction('+',100,"CZK",1234);
 
-        assertEquals(czkAccount.getAccountNumber(), accNum);
-        assertEquals(balanceBefore+200.0f, czkAccount.getWrbtr(), 0.001);
+        assertEquals (czkAccount.getAccountNumber(), result);
+        assertEquals(balanceBefore+100.0f, getUsersCZKAccount(1234).getWrbtr(), 0.001);
+
     }
 
+    // T plus EUR
     @Test
-    public void testProvideTransactionForForeignCurrencyAccount() throws Exception {
-        int userID = 1234;
-        Account foreignAccount = new Account(userID, 123789456, 500.0f, "EUR");
+    public void testProvideTransactionPlusOnEUR() throws Exception {
 
-        float exchangeRate = Bank.getExchangeRate("EUR");
-        int accNum = Transaction.provideTransaction('-', 50.0f, "USD", userID);
+        Account eurAccount = getAccountFromJson(123789456);
+        float balanceBefore = eurAccount.getWrbtr();
+        int result = provideTransaction('+',100,"EUR",1234);
 
-        assertEquals(foreignAccount.getAccountNumber(), accNum);
-        assertEquals(450.0f, foreignAccount.getWrbtr(), 0.001);
-        assertEquals(1000.0f, Bank.getAccountBalance(Account.getUsersCZKAccount(userID).getAccountNumber()), 0.001);
+        assertEquals(eurAccount.getAccountNumber(), result);
+        assertEquals(balanceBefore+100.0f, getAccountFromJson(123789456).getWrbtr(), 0.001);
     }
-     */
+
+    //T plus diff curr
+    @Test
+    public void testProvideTransactionPlusOnDiffCurr() throws Exception {
+        Account czkAccount = getUsersCZKAccount(1234);
+        float balanceBefore = czkAccount.getWrbtr();
+        int result = provideTransaction('+',100,"AUD",1234);
+
+        float newBalance = balanceBefore + Bank.getExchangeRate("AUD") * 100;
+
+        assertEquals(czkAccount.getAccountNumber(), result);
+        assertEquals(newBalance, getUsersCZKAccount(1234).getWrbtr(), 0.001);
+    }
+
+    //T minus CZK ok balance
+    @Test
+    public void testProvideTransactionMinusOnCZKOK() throws Exception {
+
+        Account czkAccount = getUsersCZKAccount(1234);
+        float balanceBefore = czkAccount.getWrbtr();
+        int result = provideTransaction('-',100,"CZK",1234);
+
+        assertEquals(czkAccount.getAccountNumber(), result);
+        assertEquals(balanceBefore-100.0f, getUsersCZKAccount(1234).getWrbtr(), 0.001);
+
+    }
+
+    //T minus CZK bad
+    @Test
+    public void testProvideTransactionMinusOnCZKBad() throws Exception {
+
+        Account czkAccount = getUsersCZKAccount(1234);
+        int result = provideTransaction('-',100000000,"CZK",1234);
+
+        assertEquals(0, result);
+    }
+
+    // T minus EUR ok
+    @Test
+    public void testProvideTransactionMinusOnEUROk() throws Exception {
+
+        Account eurAccount = getAccountFromJson(123789456);
+        float balanceBefore = eurAccount.getWrbtr();
+        int result = provideTransaction('-',100,"EUR",1234);
+
+        assertEquals(eurAccount.getAccountNumber(), result);
+        assertEquals(balanceBefore-100.0f, getAccountFromJson(123789456).getWrbtr(), 0.001);
+    }
+
+    // T minus EUR bad CZK ok
+    @Test
+    public void testProvideTransactionMinusOnEURBadCZKOk() throws Exception {
+
+        Account czkAccount = getUsersCZKAccount(1234);
+        float balanceBefore = czkAccount.getWrbtr();
+        int result = provideTransaction('-',2000,"EUR",1234);
+
+        float newBalance = balanceBefore - Bank.getExchangeRate("EUR") * 2000;
+
+        assertEquals(czkAccount.getAccountNumber(), result);
+        assertEquals(newBalance, getUsersCZKAccount(1234).getWrbtr(), 0.001);
+    }
+
+    // T minus EUR bad CZK bad
+    @Test
+    public void testProvideTransactionMinusOnEURBadCZKBad() throws Exception {
+
+        Account czkAccount = getUsersCZKAccount(1234);
+        int result = provideTransaction('-',200000,"EUR",1234);
+
+        assertEquals(0, result);
+    }
+
+    // T minus dif curr CZK ok
+    @Test
+    public void testProvideTransactionMinusOnDiffCurrCZKOk() throws Exception {
+
+        Account czkAccount = getUsersCZKAccount(1234);
+        float balanceBefore = czkAccount.getWrbtr();
+        int result = provideTransaction('-',100,"AUD",1234);
+
+        float newBalance = balanceBefore - Bank.getExchangeRate("AUD") * 100;
+
+        assertEquals(czkAccount.getAccountNumber(), result);
+        assertEquals(newBalance, getUsersCZKAccount(1234).getWrbtr(), 0.001);
+    }
+
+    // T minus diff curr CZK bad
+    @Test
+    public void testProvideTransactionMinusOnDiffCurrCZKBad() throws Exception {
+
+        Account czkAccount = getUsersCZKAccount(1234);
+        int result = provideTransaction('-',2000000,"AUD",1234);
+
+        assertEquals(0, result);
+    }
     @Test
     public void testWriteTransactionToJson_addNewTransaction() throws Exception {
         // Create a new transaction object
