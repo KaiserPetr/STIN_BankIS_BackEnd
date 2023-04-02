@@ -16,7 +16,7 @@ public class BankTest {
     public void setup() throws IOException {
 
         File copied = new File("src/main/resources/dataTestBank.json");
-        File original = new File("src/main/resources/data.json");
+        File original = new File("src/main/resources/dataTest.json");
 
         try (
                 InputStream in = new BufferedInputStream(
