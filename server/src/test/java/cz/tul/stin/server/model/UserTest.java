@@ -1,8 +1,5 @@
 package cz.tul.stin.server.model;
 
-import cz.tul.stin.server.model.Account;
-import cz.tul.stin.server.model.User;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +17,7 @@ public class UserTest {
     public void setup() throws IOException {
         // create a test file with one account
         File copied = new File("src/main/resources/dataTestUser.json");
-        File original = new File("src/main/resources/data.json");
+        File original = new File("src/main/resources/dataTest.json");
 
         try (
                 InputStream in = new BufferedInputStream(

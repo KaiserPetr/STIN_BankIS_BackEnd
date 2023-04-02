@@ -1,9 +1,5 @@
 package cz.tul.stin.server.model;
 
-import cz.tul.stin.server.config.Const;
-import org.apache.commons.io.FileUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +16,7 @@ public class BankTest {
     public void setup() throws IOException {
 
         File copied = new File("src/main/resources/dataTestBank.json");
-        File original = new File("src/main/resources/data.json");
+        File original = new File("src/main/resources/dataTest.json");
 
         try (
                 InputStream in = new BufferedInputStream(

@@ -59,7 +59,7 @@
   "transactions": [{
     "msg": "",
     "waers": "CZK",
-    "wrbtr": 100,
+    "wrbtr": 100.0,
     "accountNumber": 123456789,
     "operation": "+"
   },
