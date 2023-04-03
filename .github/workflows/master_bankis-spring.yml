@@ -22,7 +22,8 @@ jobs:
           java-version: '8'
 
       - name: Build with Maven
-        run: cd ./server
+        run: |
+            cd ./server
             mvn clean install
 
       - name: Upload artifact for deployment job
